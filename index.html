@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Top 100 Netflix Movies</title>
+	<script src="https://d3js.org/d3.v3.min.js"></script>
+
+</head>
+
+<body>
+	<h1>Top 100 Netflix Movies</h1>
+	<script>
+		// Define the margins and dimensions of the chart
+		const margin = { top: 20, right: 20, bottom: 70, left: 70 };
+		const width = 600 - margin.left - margin.right;
+		const height = 400 - margin.top - margin.bottom;
+
+		// Create an SVG element in the body of the HTML page
+		const svg = d3.select('body')
+			.append('svg')
+			.attr('width', width + margin.left + margin.right)
+			.attr('height', height + margin.top + margin.bottom)
+			.append('g')
+			.attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+		// Read the data and parse the fields as necessary
+		d3.csv('100_BMov_Net.csv', (d) => {
+			return {
+				title: d['Movie Title'],
+				year: +d.Year,
+				score: +d.Score,
+				director: d.Director,
+				cast: d.Cast,
+				consensus: d['Critics Consensus']
+			}
+		}).then((data) => {
+			// Define the scales for the x and y axes
+			const xScale = d3.scaleLinear()
+				.domain(d3.extent(data, d => d.year))
+				.range([0, width]);
+
+			const yScale = d3.scaleLinear()
+				.domain([0, 100])
+				.range([height, 0]);
+
+			// Add the x-axis to the chart
+			svg.append('g')
+				.attr('transform', `translate(0, ${height})`)
+				.call(d3.axisBottom(xScale));
+
+			// Add the y-axis to the chart
+			svg.append('g')
+				.call(d3.axisLeft(yScale));
+
+			// Add the dots to the chart
+			svg.selectAll('circle')
+				.data(data)
+				.enter()
+				.append('circle')
+				.attr('cx', d => xScale(d.year))
+				.attr('cy', d => yScale(d.score))
+				.attr('r', 5)
+				.style('fill', 'steelblue')
+				.style('opacity', 0.7);
+		});
+
+	</script>
+</body>
+
+</html>
